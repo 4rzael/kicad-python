@@ -54,11 +54,11 @@ class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
 
     @property
     def thickness(self):
-        return float(self._obj.GetThickness()) / DEFAULT_UNIT_IUS
+        return float(self._obj.GetTextThickness()) / DEFAULT_UNIT_IUS
 
     @thickness.setter
     def thickness(self, value):
-        return self._obj.SetThickness(int(value * DEFAULT_UNIT_IUS))
+        return self._obj.SetTextThickness(int(value * DEFAULT_UNIT_IUS))
 
     @property
     def size(self):
@@ -223,3 +223,12 @@ class Module(HasPosition, HasRotation, Selectable):
             for element in self._removed_elements:
                 self._obj.Add(element._obj)
         self._removed_elements = []
+
+    @property
+    def keywords(self) -> str:
+        return str(self._obj.GetKeywords())
+
+    @property
+    def properties(self) -> dict:
+        p = dict(self._obj.GetPropertiesNative())
+        return {str(k): v for k, v in p.items()}

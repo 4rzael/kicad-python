@@ -23,6 +23,7 @@ from kicad.point import Point
 from kicad import units, SWIGtype, SWIG_version
 from kicad.pcbnew.item import HasConnection, HasLayerStrImpl, Selectable
 from kicad.pcbnew.layer import LayerSet
+from kicad.pcbnew.geometry import PolygonSet, Polygon
 
 class KeepoutAllowance(object):
     """ Gives key-value interface of the form
@@ -76,10 +77,14 @@ class KeepoutAllowance(object):
 
 
 class Zone(HasConnection, HasLayerStrImpl, Selectable):
-    def __init__(self, layer='F.Cu', board=None):
+    def __init__(self, layer='F.Cu', board=None, outline: PolygonSet=None):
         self._obj = SWIGtype.Zone(board and board.native_obj)
         self.layer = layer
-        raise NotImplementedError('Constructor not supported yet')
+
+        if outline:
+            self.native_obj.SetOutline(outline.native_obj)          
+
+        # raise NotImplementedError('Constructor not supported yet')
 
     @property
     def native_obj(self):
@@ -144,6 +149,10 @@ class Zone(HasConnection, HasLayerStrImpl, Selectable):
     @layerset.setter
     def layerset(self, new_lset):
         self._obj.SetLayerSet(new_lset._obj)
+
+    @property
+    def outline(self) -> PolygonSet:
+        return PolygonSet.wrap(self.native_obj.Outline())
 
 # GetCornerSmoothingType
 # GetDefaultHatchPitch

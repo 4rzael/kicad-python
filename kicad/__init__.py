@@ -88,6 +88,8 @@ else:
             Footprint = pcbnew_bare.FOOTPRINT
             FpText = pcbnew_bare.FP_TEXT
             FpShape = pcbnew_bare.FP_SHAPE
+            Polygon = pcbnew_bare.SHAPE_LINE_CHAIN
+            PolygonSet = pcbnew_bare.SHAPE_POLY_SET
             # Changed in v7
             Point = pcbnew_bare.VECTOR2I
             Size = pcbnew_bare.VECTOR2I
@@ -104,6 +106,8 @@ else:
             Footprint = pcbnew_bare.FOOTPRINT
             FpText = pcbnew_bare.FP_TEXT
             FpShape = pcbnew_bare.FP_SHAPE
+            Polygon = pcbnew_bare.SHAPE_LINE_CHAIN
+            PolygonSet = pcbnew_bare.SHAPE_POLY_SET
             # End v6 changes
             Point = pcbnew_bare.wxPoint
             Size = pcbnew_bare.wxSize
@@ -121,6 +125,7 @@ else:
             Point = pcbnew_bare.wxPoint
             Size = pcbnew_bare.wxSize
             Rect = pcbnew_bare.EDA_RECT
+            # Polygon and PolygonSet not implemented yet
 
 
 # Broken isinstance detection of inheritance in v7
