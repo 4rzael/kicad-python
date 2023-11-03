@@ -19,6 +19,7 @@
 #
 
 from math import radians, degrees
+from kicad import pcbnew_bare as pcbnew, SWIG_version
 from kicad.point import Point
 import kicad.pcbnew.layer as pcbnew_layer
 
@@ -54,7 +55,6 @@ class HasPosition(object):
     def y(self, value):
         self.position = (self.x, value)
 
-
 class HasRotation(object):
     """Board items that has rotation property should inherit this."""
     def __init__(self):
@@ -63,11 +63,18 @@ class HasRotation(object):
     @property
     def rotation(self):
         """Rotation of the item in radians."""
-        return radians(self._obj.GetOrientation() / 10.)
+        if SWIG_version >= 7:
+            return self._obj.GetOrientation().AsRadians()
+        else:
+            return radians(self._obj.GetOrientation() / 10.)
 
     @rotation.setter
     def rotation(self, value):
-        self._obj.SetOrientation(degrees(value) * 10.)
+        if SWIG_version >= 7:
+            rotation = pcbnew.EDA_ANGLE(degrees(value), pcbnew.EDA_UNITS_DEGREES)
+            self._obj.SetOrientation(rotation)
+        else:
+            self._obj.SetOrientation(degrees(value) * 10.)
 
 
 class HasLayerEnumImpl(object):
