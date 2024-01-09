@@ -17,6 +17,7 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #
+from typing import Optional
 from kicad import pcbnew_bare as pcbnew
 
 import kicad
@@ -44,7 +45,7 @@ class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
     def text(self, value):
         return self._obj.SetText(value)
 
-    @property
+    @property 
     def visible(self):
         raise ValueError('ModuleLabel.visible is write only.')
 
@@ -232,3 +233,11 @@ class Module(HasPosition, HasRotation, Selectable):
     def properties(self) -> dict:
         p = dict(self._obj.GetPropertiesNative())
         return {str(k): v for k, v in p.items()}
+
+    @property
+    def path(self) -> str:
+        return self._obj.GetPath().AsString()
+    
+    @path.setter
+    def path(self, value: str):
+        self._obj.SetPath(SWIGtype.Path(value))

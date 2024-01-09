@@ -90,6 +90,7 @@ else:
             FpShape = pcbnew_bare.FP_SHAPE
             Polygon = pcbnew_bare.SHAPE_LINE_CHAIN
             PolygonSet = pcbnew_bare.SHAPE_POLY_SET
+            Path = pcbnew_bare.KIID_PATH
             # Changed in v7
             Point = pcbnew_bare.VECTOR2I
             Size = pcbnew_bare.VECTOR2I
@@ -108,6 +109,7 @@ else:
             FpShape = pcbnew_bare.FP_SHAPE
             Polygon = pcbnew_bare.SHAPE_LINE_CHAIN
             PolygonSet = pcbnew_bare.SHAPE_POLY_SET
+            Path = pcbnew_bare.KIID_PATH
             # End v6 changes
             Point = pcbnew_bare.wxPoint
             Size = pcbnew_bare.wxSize
@@ -125,6 +127,7 @@ else:
             Point = pcbnew_bare.wxPoint
             Size = pcbnew_bare.wxSize
             Rect = pcbnew_bare.EDA_RECT
+            Path = pcbnew_bare.KIID_PATH
             # Polygon and PolygonSet not implemented yet
 
 
