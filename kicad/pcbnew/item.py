@@ -193,8 +193,15 @@ class Selectable(object):
         else:
             self._obj.ClearBrightened()
 
+class Lockable(object):
+    """ All objects that can be locked / unlocked should inherit this."""
+    def __init__(self) -> None:
+        raise NotImplementedError("This is an abstract class!")
+    
+    @property
+    def is_locked(self):
+        return bool(self._obj.IsLocked())
 
-
-
-
-
+    @is_locked.setter
+    def is_locked(self, value: bool):
+        self._obj.SetLocked(value)

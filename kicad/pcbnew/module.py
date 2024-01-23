@@ -22,12 +22,12 @@ from kicad import pcbnew_bare as pcbnew
 
 import kicad
 from kicad import Point, Size, DEFAULT_UNIT_IUS, SWIGtype, SWIG_version
-from kicad.pcbnew.item import HasPosition, HasRotation, HasLayerEnumImpl, Selectable, HasLayerStrImpl
+from kicad.pcbnew.item import HasPosition, HasRotation, HasLayerEnumImpl, Lockable, Selectable, HasLayerStrImpl
 from kicad.pcbnew.layer import Layer
 from kicad.pcbnew.pad import Pad
 
 
-class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
+class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable, Lockable):
     """wrapper for `TEXTE_MODULE`"""
     def __init__(self, mod, text=None, layer=None):
         self._obj = SWIGtype.FpText(mod.native_obj)
@@ -93,7 +93,7 @@ class ModuleLine(HasLayerStrImpl, Selectable):
             return kicad.new(ModuleLine, instance)
 
 
-class Module(HasPosition, HasRotation, Selectable):
+class Module(HasPosition, HasRotation, Selectable, Lockable):
     def __init__(self, ref=None, pos=None, board=None):
         if not board:
             from kicad.pcbnew.board import Board
