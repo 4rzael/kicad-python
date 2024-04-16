@@ -22,7 +22,7 @@ import kicad
 from kicad.pcbnew import layer as pcbnew_layer
 from kicad.point import Point
 from kicad import units, SWIGtype, SWIG_version
-from kicad.pcbnew.item import HasPosition, HasConnection, Selectable
+from kicad.pcbnew.item import HasPosition, HasConnection, Lockable, Selectable
 from enum import IntEnum
 
 if SWIG_version >= 6:
@@ -36,7 +36,7 @@ else:
         Micro = pcbnew.VIA_MICROVIA
         Blind = pcbnew.VIA_BLIND_BURIED
 
-class Via(HasPosition, HasConnection, Selectable):
+class Via(HasPosition, HasConnection, Selectable, Lockable):
     def __init__(self, coord, layer_pair, diameter, drill, board=None):
         self._obj = SWIGtype.Via(board and board.native_obj)
         self.diameter = diameter

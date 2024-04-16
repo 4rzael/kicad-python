@@ -24,7 +24,7 @@ import kicad
 from kicad.pcbnew import layer as pcbnew_layer
 from kicad.point import Point
 from kicad import units, Size, SWIGtype, SWIG_version
-from kicad.pcbnew.item import HasLayerStrImpl, Selectable, HasPosition
+from kicad.pcbnew.item import HasLayerStrImpl, Lockable, Selectable, HasPosition
 from enum import IntEnum
 
 class ShapeType(IntEnum):
@@ -34,7 +34,7 @@ class ShapeType(IntEnum):
     Polygon = pcbnew.S_POLYGON
     Rect = pcbnew.S_RECT
 
-class Drawing(HasLayerStrImpl, Selectable):
+class Drawing(HasLayerStrImpl, Selectable, Lockable):
     @property
     def native_obj(self):
         return self._obj
@@ -309,11 +309,11 @@ class TextPCB(Drawing, HasPosition):
 
     @property
     def thickness(self):
-        return float(self._obj.GetThickness()) / units.DEFAULT_UNIT_IUS
+        return float(self._obj.GetTextThickness()) / units.DEFAULT_UNIT_IUS
 
     @thickness.setter
     def thickness(self, value):
-        return self._obj.SetThickness(int(value * units.DEFAULT_UNIT_IUS))
+        return self._obj.SetTextThickness(int(value * units.DEFAULT_UNIT_IUS))
 
     @property
     def size(self):

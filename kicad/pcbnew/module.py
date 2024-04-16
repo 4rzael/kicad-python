@@ -17,16 +17,17 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #
+from typing import Optional
 from kicad import pcbnew_bare as pcbnew
 
 import kicad
 from kicad import Point, Size, DEFAULT_UNIT_IUS, SWIGtype, SWIG_version
-from kicad.pcbnew.item import HasPosition, HasRotation, HasLayerEnumImpl, Selectable, HasLayerStrImpl
+from kicad.pcbnew.item import HasPosition, HasRotation, HasLayerEnumImpl, Lockable, Selectable, HasLayerStrImpl
 from kicad.pcbnew.layer import Layer
 from kicad.pcbnew.pad import Pad
 
 
-class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
+class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable, Lockable):
     """wrapper for `TEXTE_MODULE`"""
     def __init__(self, mod, text=None, layer=None):
         self._obj = SWIGtype.FpText(mod.native_obj)
@@ -44,7 +45,7 @@ class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
     def text(self, value):
         return self._obj.SetText(value)
 
-    @property
+    @property 
     def visible(self):
         raise ValueError('ModuleLabel.visible is write only.')
 
@@ -54,11 +55,11 @@ class ModuleLabel(HasPosition, HasRotation, HasLayerStrImpl, Selectable):
 
     @property
     def thickness(self):
-        return float(self._obj.GetThickness()) / DEFAULT_UNIT_IUS
+        return float(self._obj.GetTextThickness()) / DEFAULT_UNIT_IUS
 
     @thickness.setter
     def thickness(self, value):
-        return self._obj.SetThickness(int(value * DEFAULT_UNIT_IUS))
+        return self._obj.SetTextThickness(int(value * DEFAULT_UNIT_IUS))
 
     @property
     def size(self):
@@ -92,7 +93,7 @@ class ModuleLine(HasLayerStrImpl, Selectable):
             return kicad.new(ModuleLine, instance)
 
 
-class Module(HasPosition, HasRotation, Selectable):
+class Module(HasPosition, HasRotation, Selectable, Lockable):
     def __init__(self, ref=None, pos=None, board=None):
         if not board:
             from kicad.pcbnew.board import Board
@@ -223,3 +224,20 @@ class Module(HasPosition, HasRotation, Selectable):
             for element in self._removed_elements:
                 self._obj.Add(element._obj)
         self._removed_elements = []
+
+    @property
+    def keywords(self) -> str:
+        return str(self._obj.GetKeywords())
+
+    @property
+    def properties(self) -> dict:
+        p = dict(self._obj.GetPropertiesNative())
+        return {str(k): v for k, v in p.items()}
+
+    @property
+    def path(self) -> str:
+        return self._obj.GetPath().AsString()
+    
+    @path.setter
+    def path(self, value: str):
+        self._obj.SetPath(SWIGtype.Path(value))

@@ -15,14 +15,16 @@
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
 #
+from enum import Enum
 from kicad import pcbnew_bare as pcbnew
 
 import kicad
 from kicad.pcbnew import layer as pcbnew_layer
 from kicad.point import Point
 from kicad import units, SWIGtype, SWIG_version
-from kicad.pcbnew.item import HasConnection, HasLayerStrImpl, Selectable
+from kicad.pcbnew.item import HasConnection, HasLayerStrImpl, Lockable, Selectable
 from kicad.pcbnew.layer import LayerSet
+from kicad.pcbnew.geometry import PolygonSet, Polygon
 
 class KeepoutAllowance(object):
     """ Gives key-value interface of the form
@@ -74,12 +76,21 @@ class KeepoutAllowance(object):
     def __repr__(self):
         return type(self).__name__ + str(self)
 
+class CornerSmoothingType(Enum):
+    # pcbnew/zone_settings.h
+    SMOOTHING_NONE = 0 # Zone outline is used without change
+    SMOOTHING_CHAMFER = 1# Zone outline is used after chamfering corners
+    SMOOTHING_FILLET = 2# Zone outline is used after rounding corners
 
-class Zone(HasConnection, HasLayerStrImpl, Selectable):
-    def __init__(self, layer='F.Cu', board=None):
+class Zone(HasConnection, HasLayerStrImpl, Selectable, Lockable):
+    def __init__(self, layer='F.Cu', board=None, outline: PolygonSet=None):
         self._obj = SWIGtype.Zone(board and board.native_obj)
         self.layer = layer
-        raise NotImplementedError('Constructor not supported yet')
+
+        if outline:
+            self.native_obj.SetOutline(outline.native_obj)          
+
+        # raise NotImplementedError('Constructor not supported yet')
 
     @property
     def native_obj(self):
@@ -92,12 +103,18 @@ class Zone(HasConnection, HasLayerStrImpl, Selectable):
 
     @property
     def clearance(self):
-        return float(self._obj.GetClearance()) / units.DEFAULT_UNIT_IUS
+        if SWIG_version <= 6:
+            return float(self._obj.GetClearance()) / units.DEFAULT_UNIT_IUS
+        else:
+            return float(self._obj.GetLocalClearance()) / units.DEFAULT_UNIT_IUS
 
     @clearance.setter
     def clearance(self, value):
-        self._obj.SetClearance(int(value * units.DEFAULT_UNIT_IUS))
-        self._obj.SetZoneClearance(int(value * units.DEFAULT_UNIT_IUS))
+        if SWIG_version <= 6:
+            self._obj.SetClearance(int(value * units.DEFAULT_UNIT_IUS))
+            self._obj.SetZoneClearance(int(value * units.DEFAULT_UNIT_IUS))
+        else:
+            self._obj.SetLocalClearance(int(value * units.DEFAULT_UNIT_IUS))
 
     @property
     def min_width(self):
@@ -145,11 +162,25 @@ class Zone(HasConnection, HasLayerStrImpl, Selectable):
     def layerset(self, new_lset):
         self._obj.SetLayerSet(new_lset._obj)
 
-# GetCornerSmoothingType
-# GetDefaultHatchPitch
+    @property
+    def outline(self) -> PolygonSet:
+        return PolygonSet.wrap(self.native_obj.Outline())
 
-# GetThermalReliefCopperBridge
-# GetThermalReliefGap
+    @property
+    def corner_smoothing_type(self) -> CornerSmoothingType:
+        v = self._obj.GetCornerSmoothingType()
+        if v == -1: # Undefined values are converted to SMOOTHING_NONE, to simplify handling code
+            return CornerSmoothingType.SMOOTHING_NONE
+        return CornerSmoothingType(v) # Will raise in case of unhandled values
 
-# Outline
-# RawPolysList
+    @corner_smoothing_type.setter
+    def corner_smoothing_type(self, value: CornerSmoothingType):
+        self._obj.SetCornerSmoothingType(value.value)
+
+    @property
+    def corner_smoothing_radius(self) -> float:
+        return self._obj.GetCornerRadius() / units.DEFAULT_UNIT_IUS
+
+    @corner_smoothing_radius.setter
+    def corner_smoothing_radius(self, value: float):
+        self._obj.SetCornerRadius(int(value * units.DEFAULT_UNIT_IUS))

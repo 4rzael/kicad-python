@@ -22,9 +22,9 @@ import kicad
 from kicad.pcbnew import layer as pcbnew_layer
 from kicad.point import Point
 from kicad import units, SWIGtype
-from kicad.pcbnew.item import HasConnection, HasLayerStrImpl, Selectable
+from kicad.pcbnew.item import HasConnection, HasLayerStrImpl, Lockable, Selectable
 
-class Track(HasConnection, HasLayerStrImpl, Selectable):
+class Track(HasConnection, HasLayerStrImpl, Selectable, Lockable):
     def __init__(self, width, start, end, layer='F.Cu', board=None):
         self._obj = SWIGtype.Track(board and board.native_obj)
         self._obj.SetWidth(int(width * units.DEFAULT_UNIT_IUS))
