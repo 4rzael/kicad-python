@@ -68,7 +68,9 @@ if pcbnew_bare is None:
 else:
     # Determine version and map equivalent objects into consistent names
     ver = [int(x) for x in pcbnew_bare.GetMajorMinorVersion().split('.')]
-    if ver[0] == 7 or (ver[0] == 6 and ver[1] == 99):
+    if ver[0] == 8 or (ver[0] == 7 and ver[1] == 99):
+        SWIG_version = 8
+    elif ver[0] == 7 or (ver[0] == 6 and ver[1] == 99):
         SWIG_version = 7
     elif ver[0] == 6 or (ver[0] == 5 and ver[1] == 99):
         SWIG_version = 6
@@ -76,9 +78,27 @@ else:
         SWIG_version = 5
     else:
         print('Version {} not supported by kicad-python. Some functionality might not work')
-        SWIG_version = 7 if ver[0] > 7 else 5
+        SWIG_version = 8 if ver[0] > 8 else 5
 
-    if SWIG_version == 7:
+    if SWIG_version == 8:
+        class SWIGtype:
+            Zone = pcbnew_bare.ZONE
+            Track = pcbnew_bare.PCB_TRACK
+            Via = pcbnew_bare.PCB_VIA
+            Shape = pcbnew_bare.PCB_SHAPE
+            Text = pcbnew_bare.PCB_TEXT
+            Footprint = pcbnew_bare.FOOTPRINT
+            Polygon = pcbnew_bare.SHAPE_LINE_CHAIN
+            PolygonSet = pcbnew_bare.SHAPE_POLY_SET
+            Path = pcbnew_bare.KIID_PATH
+            Point = pcbnew_bare.VECTOR2I
+            Size = pcbnew_bare.VECTOR2I
+            Rect = pcbnew_bare.BOX2I
+            # Changed in v8
+            FpText = pcbnew_bare.PCB_TEXT
+            FpShape = pcbnew_bare.PCB_SHAPE
+            # End v8 changes
+    elif SWIG_version == 7:
         class SWIGtype:
             Zone = pcbnew_bare.ZONE
             Track = pcbnew_bare.PCB_TRACK
