@@ -231,8 +231,12 @@ class Module(HasPosition, HasRotation, Selectable, Lockable):
 
     @property
     def properties(self) -> dict:
-        p = dict(self._obj.GetPropertiesNative())
-        return {str(k): v for k, v in p.items()}
+        if SWIG_version >= 8:
+            p = self._obj.GetFields()
+            return {str(field.GetName()): field.GetText() for field in p}
+        else:
+            p = dict(self._obj.GetPropertiesNative())
+            return {str(k): v for k, v in p.items()}
 
     @property
     def path(self) -> str:
